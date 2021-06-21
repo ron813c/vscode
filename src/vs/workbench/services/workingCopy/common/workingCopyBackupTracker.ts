@@ -233,8 +233,14 @@ export abstract class WorkingCopyBackupTracker extends Disposable {
 
 		// Figure out already opened editors for backups vs
 		// non-opened.
-		const openedEditorsForBackups: IEditorInput[] = [];
-		const nonOpenedEditorsForBackups: IEditorInput[] = [];
+
+		interface IWorkingCopyEditor {
+			workingCopy: IWorkingCopyIdentifier;
+			editor: IEditorInput;
+		}
+
+		const openedEditorsForBackups: IWorkingCopyEditor[] = [];
+		const nonOpenedEditorsForBackups: IWorkingCopyEditor[] = [];
 
 		// Ensure each backup that can be handled has an
 		// associated editor.
@@ -250,7 +256,10 @@ export abstract class WorkingCopyBackupTracker extends Disposable {
 			for (const { editor } of this.editorService.getEditors(EditorsOrder.MOST_RECENTLY_ACTIVE)) {
 				const isUnrestoredBackupOpened = handler.isOpen(unrestoredBackup, editor);
 				if (isUnrestoredBackupOpened) {
-					openedEditorsForBackups.push(editor);
+					openedEditorsForBackups.push({
+						workingCopy: unrestoredBackup,
+						editor
+					});
 					hasOpenedEditorForBackup = true;
 				}
 			}
@@ -258,7 +267,10 @@ export abstract class WorkingCopyBackupTracker extends Disposable {
 			// Otherwise, make sure to create at least one editor
 			// for the backup to show
 			if (!hasOpenedEditorForBackup) {
-				nonOpenedEditorsForBackups.push(await handler.createEditor(unrestoredBackup));
+				nonOpenedEditorsForBackups.push({
+					workingCopy: unrestoredBackup,
+					editor: await handler.createEditor(unrestoredBackup)
+				});
 			}
 
 			// Remember as (potentially) restored
@@ -268,8 +280,8 @@ export abstract class WorkingCopyBackupTracker extends Disposable {
 		// Ensure editors are opened for each backup without editor
 		// in the background without stealing focus
 		if (nonOpenedEditorsForBackups.length > 0) {
-			await this.editorService.openEditors(nonOpenedEditorsForBackups.map(nonOpenedEditorForBackup => ({
-				editor: nonOpenedEditorForBackup,
+			await this.editorService.openEditors(nonOpenedEditorsForBackups.map(({ editor }) => ({
+				editor,
 				options: {
 					pinned: true,
 					preserveFocus: true,
@@ -282,7 +294,7 @@ export abstract class WorkingCopyBackupTracker extends Disposable {
 
 		// Then, resolve each editor to make sure the working copy
 		// is loaded and the dirty editor appears properly
-		await Promises.settled(openedEditorsForBackups.map(openedEditorsForBackup => openedEditorsForBackup.resolve()));
+		await Promises.settled(openedEditorsForBackups.map(({ workingCopy, editor }) => handler.resolveEditor(workingCopy, editor)));
 
 		// Finally, remove all handled backups from the list
 		for (const restoredBackup of restoredBackups) {

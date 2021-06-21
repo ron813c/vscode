@@ -86,7 +86,8 @@ export class FileEditorWorkingCopyEditorHandler extends Disposable implements IW
 			// but because some custom editors also leverage text file based working copies
 			// we need to do a weaker check by only comparing for the resource
 			isOpen: (workingCopy, editor) => isEqual(workingCopy.resource, editor.resource),
-			createEditor: workingCopy => this.editorService.createEditorInput({ resource: workingCopy.resource, forceFile: true })
+			createEditor: workingCopy => this.editorService.createEditorInput({ resource: workingCopy.resource, forceFile: true }),
+			resolveEditor: async (workingCopy, editor) => { await editor.resolve(); }
 		}));
 	}
 }

@@ -30,6 +30,17 @@ export interface IWorkingCopyEditorHandler {
 	 * Create an editor that is suitable of opening the provided working copy.
 	 */
 	createEditor(workingCopy: IWorkingCopyIdentifier): IEditorInput | Promise<IEditorInput>;
+
+	/**
+	 * Resolve the editor for the provided working copy. This should
+	 * trigger the `resolve` method of the associated `IEditorInput`
+	 * in a similar way as opening via an editor would do.
+	 *
+	 * This method should not open the editor and may be called on startup
+	 * to make sure working copies with backups are properly resolved as
+	 * editors.
+	 */
+	resolveEditor(workingCopy: IWorkingCopyIdentifier, editor: IEditorInput): Promise<void>;
 }
 
 export interface IWorkingCopyEditorService {

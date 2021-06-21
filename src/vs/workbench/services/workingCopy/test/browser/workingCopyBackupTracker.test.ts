@@ -251,7 +251,8 @@ suite('WorkingCopyBackupTracker (browser)', function () {
 				createEditorCounter++;
 
 				return accessor.instantiationService.createInstance(TestUntitledTextEditorInput, accessor.untitledTextEditorService.create({ initialValue: 'foo' }));
-			}
+			},
+			resolveEditor: async (workingCopy, editor) => { await editor.resolve(); }
 		});
 
 		assert.strictEqual(handlesCounter, 4);
@@ -276,7 +277,8 @@ suite('WorkingCopyBackupTracker (browser)', function () {
 		await tracker.restoreBackups({
 			handles: workingCopy => false,
 			isOpen: (workingCopy, editor) => { throw new Error('unexpected'); },
-			createEditor: workingCopy => { throw new Error('unexpected'); }
+			createEditor: workingCopy => { throw new Error('unexpected'); },
+			resolveEditor: async (workingCopy, editor) => { await editor.resolve(); }
 		});
 
 		assert.strictEqual(accessor.editorService.count, 0);
@@ -292,7 +294,8 @@ suite('WorkingCopyBackupTracker (browser)', function () {
 			await tracker.restoreBackups({
 				handles: workingCopy => true,
 				isOpen: (workingCopy, editor) => { throw new Error('unexpected'); },
-				createEditor: workingCopy => { throw new Error('unexpected'); }
+				createEditor: workingCopy => { throw new Error('unexpected'); },
+				resolveEditor: async (workingCopy, editor) => { await editor.resolve(); }
 			});
 		} catch (error) {
 			// ignore
@@ -315,7 +318,8 @@ suite('WorkingCopyBackupTracker (browser)', function () {
 			},
 			createEditor: workingCopy => {
 				return accessor.instantiationService.createInstance(TestUntitledTextEditorInput, accessor.untitledTextEditorService.create({ initialValue: 'foo' }));
-			}
+			},
+			resolveEditor: async (workingCopy, editor) => { await editor.resolve(); }
 		});
 
 		const secondHandler = tracker.restoreBackups({
@@ -327,7 +331,8 @@ suite('WorkingCopyBackupTracker (browser)', function () {
 			},
 			createEditor: workingCopy => {
 				return accessor.instantiationService.createInstance(TestUntitledTextEditorInput, accessor.untitledTextEditorService.create({ initialValue: 'foo' }));
-			}
+			},
+			resolveEditor: async (workingCopy, editor) => { await editor.resolve(); }
 		});
 
 		await Promise.all([firstHandler, secondHandler]);
@@ -371,7 +376,8 @@ suite('WorkingCopyBackupTracker (browser)', function () {
 
 				return true;
 			},
-			createEditor: workingCopy => { throw new Error('unexpected'); }
+			createEditor: workingCopy => { throw new Error('unexpected'); },
+			resolveEditor: async (workingCopy, editor) => { await editor.resolve(); }
 		});
 
 		assert.strictEqual(handlesCounter, 4);

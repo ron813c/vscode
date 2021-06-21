@@ -499,7 +499,8 @@ class SimpleNotebookWorkingCopyEditorHandler extends Disposable implements IWork
 		this._register(this._workingCopyEditorService.registerHandler({
 			handles: workingCopy => typeof this._getViewType(workingCopy) === 'string',
 			isOpen: (workingCopy, editor) => editor instanceof NotebookEditorInput && editor.viewType === this._getViewType(workingCopy),
-			createEditor: workingCopy => NotebookEditorInput.create(this._instantiationService, workingCopy.resource, this._getViewType(workingCopy)!)
+			createEditor: workingCopy => NotebookEditorInput.create(this._instantiationService, workingCopy.resource, this._getViewType(workingCopy)!),
+			resolveEditor: async (workingCopy, editor) => { await editor.resolve(); }
 		}));
 	}
 
@@ -540,7 +541,8 @@ class ComplexNotebookWorkingCopyEditorHandler extends Disposable implements IWor
 				}
 
 				return NotebookEditorInput.create(this._instantiationService, workingCopy.resource, backup.meta.viewType, { startDirty: true });
-			}
+			},
+			resolveEditor: async (workingCopy, editor) => { await editor.resolve(); }
 		}));
 	}
 }

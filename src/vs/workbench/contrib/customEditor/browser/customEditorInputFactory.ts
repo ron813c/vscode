@@ -162,7 +162,8 @@ export class ComplexCustomWorkingCopyEditorHandler extends Disposable implements
 				const editor = this._instantiationService.createInstance(CustomEditorInput, URI.revive(backupData.editorResource), backupData.viewType, id, webview, { backupId: backupData.backupId });
 				editor.updateGroup(0);
 				return editor;
-			}
+			},
+			resolveEditor: async (workingCopy, editor) => { await editor.resolve(); }
 		}));
 	}
 }

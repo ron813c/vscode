@@ -544,7 +544,8 @@ class SearchEditorWorkingCopyEditorHandler extends Disposable implements IWorkbe
 				input.setDirty(true);
 
 				return input;
-			}
+			},
+			resolveEditor: async (workingCopy, editor) => { await editor.resolve(); }
 		}));
 	}
 }

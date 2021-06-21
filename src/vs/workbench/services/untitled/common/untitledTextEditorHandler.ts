@@ -115,7 +115,8 @@ export class UntitledTextEditorWorkingCopyEditorHandler extends Disposable imple
 				}
 
 				return this.editorService.createEditorInput({ resource: editorInputResource, forceUntitled: true });
-			}
+			},
+			resolveEditor: async (workingCopy, editor) => { await editor.resolve(); }
 		}));
 	}
 }

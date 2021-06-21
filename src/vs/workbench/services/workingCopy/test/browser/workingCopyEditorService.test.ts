@@ -38,7 +38,8 @@ suite('WorkingCopyEditorService', () => {
 		const editorHandler: IWorkingCopyEditorHandler = {
 			handles: workingCopy => false,
 			isOpen: () => false,
-			createEditor: workingCopy => { throw new Error(); }
+			createEditor: workingCopy => { throw new Error(); },
+			resolveEditor: async (workingCopy, editor) => { await editor.resolve(); }
 		};
 
 		const disposable = service.registerHandler(editorHandler);
@@ -68,7 +69,8 @@ suite('WorkingCopyEditorService', () => {
 		const editorHandler: IWorkingCopyEditorHandler = {
 			handles: workingCopy => workingCopy === testWorkingCopy,
 			isOpen: (workingCopy, editor) => workingCopy === testWorkingCopy,
-			createEditor: workingCopy => { throw new Error(); }
+			createEditor: workingCopy => { throw new Error(); },
+			resolveEditor: async (workingCopy, editor) => { await editor.resolve(); }
 		};
 
 		disposables.add(service.registerHandler(editorHandler));
