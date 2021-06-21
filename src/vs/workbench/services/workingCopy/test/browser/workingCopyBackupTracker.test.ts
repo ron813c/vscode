@@ -235,6 +235,7 @@ suite('WorkingCopyBackupTracker (browser)', function () {
 		let handlesCounter = 0;
 		let isOpenCounter = 0;
 		let createEditorCounter = 0;
+		let resolveEditorCounter = 0;
 
 		await tracker.restoreBackups({
 			handles: workingCopy => {
@@ -252,12 +253,17 @@ suite('WorkingCopyBackupTracker (browser)', function () {
 
 				return accessor.instantiationService.createInstance(TestUntitledTextEditorInput, accessor.untitledTextEditorService.create({ initialValue: 'foo' }));
 			},
-			resolveEditor: async (workingCopy, editor) => { await editor.resolve(); }
+			resolveEditor: async (workingCopy, editor) => {
+				resolveEditorCounter++;
+
+				await editor.resolve();
+			}
 		});
 
 		assert.strictEqual(handlesCounter, 4);
 		assert.strictEqual(isOpenCounter, 0);
 		assert.strictEqual(createEditorCounter, 2);
+		assert.strictEqual(resolveEditorCounter, 2);
 
 		assert.strictEqual(accessor.editorService.count, 2);
 		assert.ok(accessor.editorService.editors.every(editor => editor.isDirty()));
@@ -278,7 +284,7 @@ suite('WorkingCopyBackupTracker (browser)', function () {
 			handles: workingCopy => false,
 			isOpen: (workingCopy, editor) => { throw new Error('unexpected'); },
 			createEditor: workingCopy => { throw new Error('unexpected'); },
-			resolveEditor: async (workingCopy, editor) => { await editor.resolve(); }
+			resolveEditor: async (workingCopy, editor) => { throw new Error('unexpected'); }
 		});
 
 		assert.strictEqual(accessor.editorService.count, 0);
@@ -295,7 +301,7 @@ suite('WorkingCopyBackupTracker (browser)', function () {
 				handles: workingCopy => true,
 				isOpen: (workingCopy, editor) => { throw new Error('unexpected'); },
 				createEditor: workingCopy => { throw new Error('unexpected'); },
-				resolveEditor: async (workingCopy, editor) => { await editor.resolve(); }
+				resolveEditor: async (workingCopy, editor) => { throw new Error('unexpected'); }
 			});
 		} catch (error) {
 			// ignore
@@ -356,6 +362,7 @@ suite('WorkingCopyBackupTracker (browser)', function () {
 
 		let handlesCounter = 0;
 		let isOpenCounter = 0;
+		let resolveCounter = 0;
 
 		const editor1 = accessor.instantiationService.createInstance(TestUntitledTextEditorInput, accessor.untitledTextEditorService.create({ initialValue: 'foo' }));
 		const editor2 = accessor.instantiationService.createInstance(TestUntitledTextEditorInput, accessor.untitledTextEditorService.create({ initialValue: 'foo' }));
@@ -377,11 +384,16 @@ suite('WorkingCopyBackupTracker (browser)', function () {
 				return true;
 			},
 			createEditor: workingCopy => { throw new Error('unexpected'); },
-			resolveEditor: async (workingCopy, editor) => { await editor.resolve(); }
+			resolveEditor: async (workingCopy, editor) => {
+				resolveCounter++;
+
+				await editor.resolve();
+			}
 		});
 
 		assert.strictEqual(handlesCounter, 4);
 		assert.strictEqual(isOpenCounter, 4);
+		assert.strictEqual(resolveCounter, 4);
 
 		assert.strictEqual(accessor.editorService.count, 2);
 		assert.strictEqual(tracker.getUnrestoredBackups().size, 2);
